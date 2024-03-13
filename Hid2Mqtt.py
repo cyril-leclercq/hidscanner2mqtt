@@ -29,13 +29,13 @@ class Hid2Mqtt:
     def connect_and_read_hid_device(self) :
         while True:
             try:
-                current_device = self.find_usb_device()
-                if current_device == None:
+                self.current_device = self.find_usb_device()
+                if self.current_device == None:
                     self.log.info('No device found. Retry in %r s' % constants.USB_DETECTION_DELAY_SECONDS)
                     sleep(constants.USB_DETECTION_DELAY_SECONDS)
                     continue
 
-                self.log.info('Found device path %r' % current_device)
+                self.log.info('Found device path %r' % self.current_device)
                 self.read_hid_stream()
             except Exception as err:
                 logging.warning(err)
