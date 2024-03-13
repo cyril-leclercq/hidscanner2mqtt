@@ -165,15 +165,18 @@ def main(argv=None):
         print('%s' % barcode)
 
     def callback_mqtt(input_string):
-        (symbology, barcode) = input_string
-        log.info('mqtt send: %r' % barcode)
-        mqtt_message = barcode
-        # initial payload trivial, just the keypresses with terminator (newline) removed
-        # no announcements, no timestamps, so client details
-        result =  publish.single(config['mqtt_topic'], mqtt_message, hostname=config['mqtt_broker'], port=config['mqtt_port'])
-        #log.debug('mqqt publish result %r', result)  # returns None on success, on failure exception
+        try:
+            (symbology, barcode) = input_string
+            log.debug('MQTT send: %r' % barcode)
+            mqtt_message = barcode
+            # initial payload trivial, just the keypresses with terminator (newline) removed
+            # no announcements, no timestamps, so client details
+            result =  publish.single(config['mqtt_topic'], mqtt_message, hostname=config['mqtt_broker'], port=config['mqtt_port'])
+            log.debug('mqqt publish result %r', result)  # returns None on success, on failure exception
+        except Exception as e:      # works on python 3.x
+            log.error('Failed to upload to MQTT: %s', repr(e))
 
-    callback_function = callback_print_stdout  # TODO pick up from config?
+    #callback_function = callback_print_stdout  # TODO pick up from config?
     callback_function = callback_mqtt  # TODO pick up from config?
 
     # list all devices
