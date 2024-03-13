@@ -19,3 +19,7 @@ If installing/working with a source checkout issue:
 ## Credits
 
 - Based on https://github.com/clach04/keyboard2mqtt
+  cd /opt \
+   && sudo git clone https://github.com/cyril-leclercq/hidscanner2mqtt.git \
+   && cd /opt/hidscanner2mqtt \
+   && sudo ./setup.sh
