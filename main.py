@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-from hid2mqtt import Hid2Mqtt
+from Hid2Mqtt import Hid2Mqtt
 
 if __name__ == "__main__":
     hid2Mqtt = Hid2Mqtt()
