@@ -1,0 +1,16 @@
+[Unit]
+Description=HID scanner to mqtt Service
+After=network-online.target
+
+StartLimitIntervalSec=500
+StartLimitBurst=5
+
+[Service]
+RestartSec=5s
+Restart=always
+Environment="DEBUG=false"
+PassEnvironment="DEBUG"
+ExecStart=/usr/bin/python /opt/hid2mqtt/main.py
+
+[Install]
+WantedBy=multi-user.target
