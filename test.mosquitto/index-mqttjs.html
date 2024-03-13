@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT Scan</title>
+    <style>
+        .centered-div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <script>
+        const client = mqtt.connect("mqtt://INFOMIL-Q990.local:8080", {clientId: "client_mqttjs_" + new Date().getTime() })
+        client.subscribe('tag_barcode_scan')
+        client.on('message', function (topic, message, packet) {
+            document.getElementById("barcodeContent").textContent = message;
+        });
+    </script>
+</head>
+
+<body>
+    <div class="centered-div">
+        <div>
+            <h1 id="barcodeContent">Scanner un code</h1>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,1 @@
+docker exec -it hidscanner-mosquitto mosquitto_sub -h INFOMIL-Q990.local -t \# -d

@@ -1,0 +1,7 @@
+{
+  "debug": true,
+  "use_symbology_prefix": false,
+  "mqtt_broker": "INFOMIL-Q990.local",
+  "mqtt_port": 1883,
+  "mqtt_topic": "tag_barcode_scan"
+}
