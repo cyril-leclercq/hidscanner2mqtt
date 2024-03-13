@@ -4,7 +4,10 @@
 
 ## Getting Started
 
-Startup with `python3 hid2mqtt.py`.
+Manual startup :
+
+    pip install -r requirements.txt
+    python3 hid2mqtt.py
 
 NOTE needs a working MQTT broker, mosquitto is a good basic one to try:
 
@@ -12,14 +15,17 @@ NOTE needs a working MQTT broker, mosquitto is a good basic one to try:
     sudo apt install -y mosquitto mosquitto-clients
     sudo systemctl enable mosquitto.service
 
-If installing/working with a source checkout issue:
+## Install as systemd service
 
-    pip install -r requirements.txt
+To install use following snippet :
+
+    cd /opt \
+        && sudo git clone https://github.com/cyril-leclercq/hidscanner2mqtt.git \
+        && cd /opt/hidscanner2mqtt \
+        && sudo ./setup.sh
+
+Logs are available with `journalctl -u hidscanner2mqtt.service`
 
 ## Credits
 
 - Based on https://github.com/clach04/keyboard2mqtt
-  cd /opt \
-   && sudo git clone https://github.com/cyril-leclercq/hidscanner2mqtt.git \
-   && cd /opt/hidscanner2mqtt \
-   && sudo ./setup.sh
