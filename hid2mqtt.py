@@ -93,7 +93,8 @@ def callback_mqtt(input_string):
 
 def try_ungrab():
         try:
-            current_device.ungrab()
+            if current_device != None:
+                current_device.ungrab()
         except Exception as err:
             logging.warning(err)
 
