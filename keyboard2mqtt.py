@@ -94,6 +94,7 @@ CHARMAP = {
 
 def keyboard_reader_evdev(dev):
     barcode_string_output = ''
+    barcode_symbology = ''
     # barcode can have a 'shift' character; this switches the character set
     # from the lower to upper case variant for the next character only.
     shift_active = False
@@ -109,7 +110,7 @@ def keyboard_reader_evdev(dev):
         if event.code == evdev.ecodes.KEY_ENTER and event.value == VALUE_DOWN:
             #print('KEY_ENTER -> return')
             # all barcodes end with a carriage return
-            return barcode_string_output
+            return (barcode_symbology, barcode_string_output)
         elif event.code == evdev.ecodes.KEY_LEFTSHIFT or event.code == evdev.ecodes.KEY_RIGHTSHIFT:
             #print('SHIFT')
             shift_active = event.value == VALUE_DOWN
@@ -117,7 +118,10 @@ def keyboard_reader_evdev(dev):
             ch = CHARMAP.get(event.code, ERROR_CHARACTER)[1 if shift_active else 0]
             #print('ch:', ch)
             # if the charcode isn't recognized, use ?
-            barcode_string_output += ch
+            if barcode_symbology == '':
+                barcode_symbology = ch
+            else
+                barcode_string_output += ch
 
 def main(argv=None):
     if argv is None:
@@ -157,11 +161,13 @@ def main(argv=None):
     log.info('hello')
 
     def callback_print_stdout(input_string):
-        print('%s' % input_string)
+        (symbology, barcode) = input_string
+        print('%s' % barcode)
 
     def callback_mqtt(input_string):
-        log.info('mqtt send: %r' % input_string)
-        mqtt_message = input_string
+        (symbology, barcode) = input_string
+        log.info('mqtt send: %r' % barcode)
+        mqtt_message = barcode
         # initial payload trivial, just the keypresses with terminator (newline) removed
         # no announcements, no timestamps, so client details
         result =  publish.single(config['mqtt_topic'], mqtt_message, hostname=config['mqtt_broker'], port=config['mqtt_port'])
