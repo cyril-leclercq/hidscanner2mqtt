@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import logging
 import paho.mqtt.publish as publish
@@ -11,7 +12,8 @@ log  = logging.getLogger(__name__)
 logging.basicConfig()
 log.setLevel(level=constants.LOG_LEVEL)
 
-config = json.load(open('configuration.json'))
+configFilePath = os.path.join(os.path.dirname(__file__), "configuration.json")
+config = json.load(open(configFilePath))
 
 def callback_mqtt(symbology, barcode):
     try:
