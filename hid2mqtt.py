@@ -4,6 +4,7 @@ import constants
 import logging
 import sys
 import evdev
+import sys, signal
 import paho.mqtt.publish as publish
 
 from time import sleep
@@ -38,8 +39,6 @@ def connect_and_read_hid_device() :
 
             log.info('Found device path %r' % dev)
             read_hid_stream(dev)
-        except KeyboardInterrupt:
-            logging.debug('Current device search interrupted')
         except Exception as err:
             logging.warning(repr(err))
 
@@ -57,8 +56,6 @@ def read_hid_stream(dev):
             while True:
                 read_string = keyboard_reader_evdev(dev)
                 callback_mqtt(read_string)
-        except KeyboardInterrupt:
-            logging.debug('Current device read interrupted')
         except Exception as err:
             logging.warning(repr(err))
         finally:
@@ -99,6 +96,11 @@ def try_ungrab(dev):
             logging.warning(err)
         finally:
             dev.ungrab()
+            
+def signal_handler(signal, frame):
+    print("\nprogram exiting gracefully")
+    sys.exit(0)
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal_handler)
     sys.exit(main())
