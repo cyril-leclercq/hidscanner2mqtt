@@ -94,7 +94,7 @@ def try_ungrab(dev):
         try:
             dev.ungrab()
         except Exception as err:
-            logging.warn(err)
+            logging.warning(err)
         finally:
             dev.ungrab()
 
