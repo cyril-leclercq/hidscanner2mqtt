@@ -1,3 +1,5 @@
+import evdev
+
 USB_DETECTION_DELAY_SECONDS = 3
 ERROR_CHARACTER = '?'
 VALUE_UP = 0
