@@ -25,8 +25,9 @@ log.setLevel(level=logging.DEBUG)  # Debug hack!
 log.info('Python %s on %s', sys.version, sys.platform)
 
 DEFAULT_USB_DEVICE_LIST = [
-    (0x16c0, 0x27db), # YARONGTECH USB RFID Card Reader
+    (1504, 4608), # Symbol Technologies, Inc, 2008 Symbol Bar Code Scanner
 ]
+
 def find_usb_device(usb_search_list=None):
     usb_search_list = usb_search_list or DEFAULT_USB_DEVICE_LIST
     devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
