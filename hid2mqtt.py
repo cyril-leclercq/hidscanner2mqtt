@@ -6,25 +6,25 @@ import sys
 import evdev
 import sys, signal
 import paho.mqtt.publish as publish
-
 from time import sleep
 from configuration import config
 
-version_tuple = (0, 0, 1)
-version = version_string = __version__ = '%d.%d.%d' % version_tuple
-
-log = logging.getLogger(__name__)
-logging.basicConfig()
-log.setLevel(level=logging.DEBUG)
-log.info('Python %s on %s', sys.version, sys.platform)
-
+log = None
 current_device = None
 
-def main(argv=None):
-    print_usb_devices()
+def main():
+    init_logs()
+    log_usb_devices_for_debug()
     connect_and_read_hid_device()
 
-def print_usb_devices():
+def init_logs():
+    log = logging.getLogger(__name__)
+    logging.basicConfig()
+    log.setLevel(level=constants.LOG_LEVEL)
+    log.info('Python %s on %s', sys.version, sys.platform)
+
+def log_usb_devices_for_debug():
+    if log.level == logging.DEBUG:
         log.debug("Listing usb devices...")
         for path in evdev.list_devices():
             tmp_dev = evdev.InputDevice(path)
@@ -88,7 +88,7 @@ def callback_mqtt(input_string):
         # no announcements, no timestamps, so client details
         result =  publish.single(config['mqtt_topic'], mqtt_message, hostname=config['mqtt_broker'], port=config['mqtt_port'])
         log.debug('mqqt publish result %r', result)  # returns None on success, on failure exception
-    except Exception as e:      # works on python 3.x
+    except Exception as e:
         log.error('Failed to upload to MQTT: %s', repr(e))
 
 def try_ungrab():
@@ -99,10 +99,10 @@ def try_ungrab():
             logging.warning(err)
 
 def signal_handler(signal, frame):
-    print("\nprogram exiting gracefully")
     try_ungrab()
     sys.exit(0)
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
-    sys.exit(main())
+    main()
+    sys.exit(0)
