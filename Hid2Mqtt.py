@@ -52,7 +52,7 @@ class Hid2Mqtt:
             try:
                 self.current_device.grab()
                 while True:
-                    read_string = self.keyboard_reader_evdev(self.current_device)
+                    read_string = self.keyboard_reader_evdev()
                     self.callback_mqtt(read_string)
             except Exception as err:
                 logging.warning(repr(err))
