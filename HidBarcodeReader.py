@@ -3,7 +3,6 @@ import logging
 import sys
 import evdev
 from time import sleep
-from configuration import config
 
 class HidBarcodeReader:
 
