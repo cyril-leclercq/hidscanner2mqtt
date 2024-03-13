@@ -1,9 +1,9 @@
 {
-	"name": "Python 3",    
-    "build": {
-        "dockerfile": "Dockerfile",
-        "context": ".."
-    },
+	"name": "Python 3",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
 	"portsAttributes": {
 		"1883": {
 			"label": "MQTT",

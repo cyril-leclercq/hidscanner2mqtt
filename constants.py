@@ -1,6 +1,7 @@
 import evdev
 import logging
 
+CONF_FILENAME = "configuration.json"
 LOG_LEVEL = logging.DEBUG
 USB_DETECTION_DELAY_SECONDS = 5
 ERROR_CHARACTER = '?'

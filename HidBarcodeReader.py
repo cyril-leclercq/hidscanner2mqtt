@@ -2,11 +2,9 @@ import constants
 import logging
 import sys
 import evdev
-import paho.mqtt.publish as publish
 from time import sleep
-from configuration import config
 
-class Hid2Mqtt:
+class HidBarcodeReader:
 
     def __init__(self):
         self.log = None
@@ -16,8 +14,8 @@ class Hid2Mqtt:
     def init_logs(self):
         self.log  = logging.getLogger(__name__)
         logging.basicConfig()
-        self.log .setLevel(level=constants.LOG_LEVEL)
-        self.log .info('Python %s on %s', sys.version, sys.platform)
+        self.log.setLevel(level=constants.LOG_LEVEL)
+        self.log.info('Python %s on %s', sys.version, sys.platform)
 
     def log_usb_devices_for_debug(self):
         if logging.getLevelName(self.log) == logging.DEBUG:
@@ -26,7 +24,7 @@ class Hid2Mqtt:
                 tmp_dev = evdev.InputDevice(path)
                 self.log.debug('device path %r %r %r %r %r ' % (path, tmp_dev.info, tmp_dev.path, tmp_dev.name, tmp_dev.phys))
 
-    def connect_and_read_hid_device(self) :
+    def connect_and_read_hid_device(self, callback_mqtt) :
         while True:
             try:
                 self.current_device = self.find_usb_device()
@@ -36,7 +34,7 @@ class Hid2Mqtt:
                     continue
 
                 self.log.info('Found device path %r' % self.current_device)
-                self.read_hid_stream()
+                self.read_hid_stream(callback_mqtt)
             except Exception as err:
                 logging.warning(err)
 
@@ -48,12 +46,12 @@ class Hid2Mqtt:
                 return device
         return None
 
-    def read_hid_stream(self):
+    def read_hid_stream(self, callback_mqtt):
             try:
                 self.current_device.grab()
                 while True:
-                    read_string = self.keyboard_reader_evdev()
-                    self.callback_mqtt(read_string)
+                    (symbology, barcode) = self.keyboard_reader_evdev()
+                    callback_mqtt(symbology, barcode)
             except Exception as err:
                 logging.warning(repr(err))
             finally:
@@ -74,18 +72,6 @@ class Hid2Mqtt:
                     barcode_symbology = ch
                 else:
                     barcode_string_output += ch
-
-    def callback_mqtt(self, input_string):
-        try:
-            (symbology, barcode) = input_string
-            self.log.debug('MQTT send: %r' % barcode)
-            mqtt_message = barcode
-            # initial payload trivial, just the keypresses with terminator (newline) removed
-            # no announcements, no timestamps, so client details
-            result =  publish.single(config['mqtt_topic'], mqtt_message, hostname=config['mqtt_broker'], port=config['mqtt_port'])
-            self.log.debug('mqqt publish result %r', result)  # returns None on success, on failure exception
-        except Exception as e:
-            self.log.error('Failed to upload to MQTT: %s', repr(e))
 
     def try_ungrab(self):
             try:
