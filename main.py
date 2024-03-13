@@ -4,12 +4,14 @@ import sys
 import logging
 import paho.mqtt.publish as publish
 import constants
-from configuration import config
+import json
 from HidBarcodeReader import HidBarcodeReader
 
 log  = logging.getLogger(__name__)
 logging.basicConfig()
 log.setLevel(level=constants.LOG_LEVEL)
+
+config = json.load(open('configuration.json'))
 
 def callback_mqtt(symbology, barcode):
     try:

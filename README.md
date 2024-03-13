@@ -15,6 +15,10 @@ NOTE needs a working MQTT broker, mosquitto is a good basic one to try:
     sudo apt install -y mosquitto mosquitto-clients
     sudo systemctl enable mosquitto.service
 
+To test :
+
+    mosquitto_sub -d -t tag_barcode_scan
+
 ## Install as systemd service
 
 To install use following snippet :
