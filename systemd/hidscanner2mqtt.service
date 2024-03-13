@@ -10,7 +10,7 @@ RestartSec=5s
 Restart=always
 Environment="DEBUG=false"
 PassEnvironment="DEBUG"
-ExecStart=/usr/bin/python /opt/hid2mqtt/main.py
+ExecStart=/usr/bin/python /opt/hidscanner2mqtt/main.py
 
 [Install]
 WantedBy=multi-user.target
