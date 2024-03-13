@@ -41,7 +41,7 @@ class Hid2Mqtt:
                 logging.warning(err)
 
     def find_usb_device(self):
-        usb_search_list = usb_search_list or constants.DEFAULT_USB_DEVICE_LIST
+        usb_search_list = constants.DEFAULT_USB_DEVICE_LIST
         devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
         for device in devices:
             if (device.info.vendor, device.info.product) in usb_search_list:
