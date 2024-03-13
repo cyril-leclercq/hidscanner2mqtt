@@ -12,7 +12,7 @@ log  = logging.getLogger(__name__)
 logging.basicConfig()
 log.setLevel(level=constants.LOG_LEVEL)
 
-configFilePath = os.path.join(os.path.dirname(__file__), "configuration.json")
+configFilePath = os.path.join(os.path.dirname(__file__), constants.CONF_FILENAME)
 config = json.load(open(configFilePath))
 
 def callback_mqtt(symbology, barcode):
