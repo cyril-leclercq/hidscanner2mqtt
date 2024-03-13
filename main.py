@@ -5,7 +5,7 @@ import logging
 import paho.mqtt.publish as publish
 import constants
 from configuration import config
-from Hid2Mqtt import Hid2Mqtt
+from HidBarcodeReader import HidBarcodeReader
 
 log  = logging.getLogger(__name__)
 logging.basicConfig()
@@ -21,7 +21,7 @@ def callback_mqtt(symbology, barcode):
         log.error('Failed to upload to MQTT: %s', repr(e))
 
 if __name__ == "__main__":
-    hid2Mqtt = Hid2Mqtt()
-    hid2Mqtt.log_usb_devices_for_debug()
-    hid2Mqtt.connect_and_read_hid_device(callback_mqtt)
+    hidBarcodeReader = HidBarcodeReader()
+    hidBarcodeReader.log_usb_devices_for_debug()
+    hidBarcodeReader.connect_and_read_hid_device(callback_mqtt)
     sys.exit(0)
