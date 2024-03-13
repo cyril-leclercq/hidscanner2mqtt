@@ -120,7 +120,7 @@ def keyboard_reader_evdev(dev):
             # if the charcode isn't recognized, use ?
             if barcode_symbology == '':
                 barcode_symbology = ch
-            else
+            else:
                 barcode_string_output += ch
 
 def main(argv=None):
