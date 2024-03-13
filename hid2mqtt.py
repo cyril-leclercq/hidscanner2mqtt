@@ -25,7 +25,7 @@ def print_usb_devices():
         log.debug("Listing usb devices...")
         for path in evdev.list_devices():
             tmp_dev = evdev.InputDevice(path)
-            log.info('device path %r %r %r %r %r ' % (path, tmp_dev.info, tmp_dev.path, tmp_dev.name, tmp_dev.phys))
+            log.debug('device path %r %r %r %r %r ' % (path, tmp_dev.info, tmp_dev.path, tmp_dev.name, tmp_dev.phys))
 
 def connect_and_read_hid_device() :
     while True:
@@ -39,7 +39,7 @@ def connect_and_read_hid_device() :
             log.info('Found device path %r' % dev)
             read_hid_stream(dev)
         except Exception as err:
-            logging.warning(err)
+            logging.warning(repr(err))
 
 def find_usb_device(usb_search_list=None):
     usb_search_list = usb_search_list or constants.DEFAULT_USB_DEVICE_LIST
@@ -58,7 +58,7 @@ def read_hid_stream(dev):
         except KeyboardInterrupt:
             logging.debug('Keyboard interrupt')
         except Exception as err:
-            logging.error(err)
+            logging.warning(repr(err))
         finally:
             try_ungrab(dev)
 
