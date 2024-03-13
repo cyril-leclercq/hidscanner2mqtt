@@ -4,6 +4,8 @@
 
 ## Getting Started
 
+Startup with `python3 hid2mqtt.py`.
+
 NOTE needs a working MQTT broker, mosquitto is a good basic one to try:
 
     sudo apt update
