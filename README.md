@@ -1,8 +1,6 @@
-# keyboard2mqtt
+# HID Scanner 2 MQTT
 
-RFID tag reader and 1D/2D barcode reader to MQTT - or any device that emulates a HID USB Keyboard with newline as the terminator.
-
-In theory any (real) keyboard could be captured, not just a device that emulates a keyboard.
+1D/2D HID barcode reader to MQTT.
 
 ## Getting Started
 
@@ -18,4 +16,4 @@ If installing/working with a source checkout issue:
 
 ## Credits
 
-  * Based on https://github.com/clach04/keyboard2mqtt 
+- Based on https://github.com/clach04/keyboard2mqtt
