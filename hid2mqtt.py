@@ -18,6 +18,8 @@ logging.basicConfig()
 log.setLevel(level=logging.DEBUG)
 log.info('Python %s on %s', sys.version, sys.platform)
 
+current_device = None
+
 def main(argv=None):
     print_usb_devices()
     connect_and_read_hid_device()
@@ -31,14 +33,14 @@ def print_usb_devices():
 def connect_and_read_hid_device() :
     while True:
         try:
-            dev = find_usb_device()
-            if dev == None:
+            current_device = find_usb_device()
+            if current_device == None:
                 log.info('No device found. Retry in %r s' % constants.USB_DETECTION_DELAY_SECONDS)
                 sleep(constants.USB_DETECTION_DELAY_SECONDS)
                 continue
 
-            log.info('Found device path %r' % dev)
-            read_hid_stream(dev)
+            log.info('Found device path %r' % current_device)
+            read_hid_stream()
         except Exception as err:
             logging.warning(repr(err))
 
@@ -50,22 +52,22 @@ def find_usb_device(usb_search_list=None):
             return device
     return None
 
-def read_hid_stream(dev):
+def read_hid_stream():
         try:
-            dev.grab()
+            current_device.grab()
             while True:
-                read_string = keyboard_reader_evdev(dev)
+                read_string = keyboard_reader_evdev(current_device)
                 callback_mqtt(read_string)
         except Exception as err:
             logging.warning(repr(err))
         finally:
-            try_ungrab(dev)
+            try_ungrab()
 
-def keyboard_reader_evdev(dev):
+def keyboard_reader_evdev():
     barcode_string_output = ''
     barcode_symbology = ''
     shift_active = False
-    for event in dev.read_loop():
+    for event in current_device.read_loop():
         if event.code == evdev.ecodes.KEY_ENTER and event.value == constants.VALUE_DOWN:
             return (barcode_symbology, barcode_string_output)
         elif event.code == evdev.ecodes.KEY_LEFTSHIFT or event.code == evdev.ecodes.KEY_RIGHTSHIFT:
@@ -89,16 +91,15 @@ def callback_mqtt(input_string):
     except Exception as e:      # works on python 3.x
         log.error('Failed to upload to MQTT: %s', repr(e))
 
-def try_ungrab(dev):
+def try_ungrab():
         try:
-            dev.ungrab()
+            current_device.ungrab()
         except Exception as err:
             logging.warning(err)
-        finally:
-            dev.ungrab()
-            
+
 def signal_handler(signal, frame):
     print("\nprogram exiting gracefully")
+    try_ungrab()
     sys.exit(0)
 
 if __name__ == "__main__":
