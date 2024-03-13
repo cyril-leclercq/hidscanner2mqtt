@@ -38,9 +38,9 @@ class Hid2Mqtt:
                 self.log.info('Found device path %r' % current_device)
                 self.read_hid_stream()
             except Exception as err:
-                logging.warning(repr(err))
+                logging.warning(err)
 
-    def find_usb_device(usb_search_list=None):
+    def find_usb_device(self):
         usb_search_list = usb_search_list or constants.DEFAULT_USB_DEVICE_LIST
         devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
         for device in devices:
