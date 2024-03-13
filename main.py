@@ -3,6 +3,7 @@
 import sys
 import logging
 import paho.mqtt.publish as publish
+import constants
 from configuration import config
 from Hid2Mqtt import Hid2Mqtt
 
