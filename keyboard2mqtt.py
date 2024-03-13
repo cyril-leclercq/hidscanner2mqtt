@@ -1,28 +1,25 @@
 #!/usr/bin/env python
-# -*- coding: us-ascii -*-
-# vim:ts=4:sw=4:softtabstop=4:smarttab:expandtab
-#
 
 import json
 import logging
 import os
 import sys
-
 import evdev
-
-import paho.mqtt.client as paho
 import paho.mqtt.publish as publish
+
+from time import sleep
 
 
 version_tuple = (0, 0, 1)
 version = version_string = __version__ = '%d.%d.%d' % version_tuple
-__author__ = 'clach04'
 
 log = logging.getLogger(__name__)
-logging.basicConfig()  # TODO include function name/line numbers in log
-log.setLevel(level=logging.DEBUG)  # Debug hack!
+logging.basicConfig()
+log.setLevel(level=logging.DEBUG)
 
 log.info('Python %s on %s', sys.version, sys.platform)
+
+USB_DETECTION_DELAY_SECONDS = 1
 
 DEFAULT_USB_DEVICE_LIST = [
     (1504, 4608), # Symbol Technologies, Inc, 2008 Symbol Bar Code Scanner
@@ -95,74 +92,35 @@ CHARMAP = {
 def keyboard_reader_evdev(dev):
     barcode_string_output = ''
     barcode_symbology = ''
-    # barcode can have a 'shift' character; this switches the character set
-    # from the lower to upper case variant for the next character only.
     shift_active = False
     for event in dev.read_loop():
-
-        #print('categorize:', evdev.categorize(event))
-        #print('typeof:', type(event.code))
-        #print("event.code:", event.code)
-        #print("event.type:", event.type)
-        #print("event.value:", event.value)
-        #print("event:", event)
-
         if event.code == evdev.ecodes.KEY_ENTER and event.value == VALUE_DOWN:
-            #print('KEY_ENTER -> return')
-            # all barcodes end with a carriage return
             return (barcode_symbology, barcode_string_output)
         elif event.code == evdev.ecodes.KEY_LEFTSHIFT or event.code == evdev.ecodes.KEY_RIGHTSHIFT:
-            #print('SHIFT')
             shift_active = event.value == VALUE_DOWN
         elif event.value == VALUE_DOWN:
             ch = CHARMAP.get(event.code, ERROR_CHARACTER)[1 if shift_active else 0]
-            #print('ch:', ch)
-            # if the charcode isn't recognized, use ?
             if barcode_symbology == '':
                 barcode_symbology = ch
             else:
                 barcode_string_output += ch
 
 def main(argv=None):
-    if argv is None:
-        argv = sys.argv
-
     print('Python %r on %r' % (sys.version, sys.platform))
 
-    try:
-        config_filename = argv[1]
-    except IndexError:
-        config_filename = os.environ.get('KEYBOARD2MQTT_CONFIG_FILE', 'config.json')
-    if os.path.exists(config_filename):
-        log.info('Using config file %r', config_filename)
-        with open(config_filename, 'rb') as f:  # TODO use codec/encoding
-            data = f.read()
-            data = data.decode('utf-8')
-            config = json.loads(data)
-            del(data)
-    else:
-        log.warning('Missing config file %r, using defaults', config_filename)
-        config = {}
-
-    default_config = {
-        'debug': False,
+    config = {
+        'debug': True,
+        'use_symbology_prefix' : False,
         'mqtt_broker': 'localhost',
         'mqtt_port': 1883,
         'mqtt_topic': 'tag_keyboard_reader',  # to monitor, issue: mosquitto_sub -t tag_keyboard_reader
     }
-    default_config.update(config)
-    config = default_config
+
     print(json.dumps(config, indent=4))
     if config['debug']:
         log.setLevel(level=logging.DEBUG)
     else:
         log.setLevel(level=logging.INFO)
-    log.debug('hello')
-    log.info('hello')
-
-    def callback_print_stdout(input_string):
-        (symbology, barcode) = input_string
-        print('%s' % barcode)
 
     def callback_mqtt(input_string):
         try:
@@ -176,34 +134,49 @@ def main(argv=None):
         except Exception as e:      # works on python 3.x
             log.error('Failed to upload to MQTT: %s', repr(e))
 
-    #callback_function = callback_print_stdout  # TODO pick up from config?
-    callback_function = callback_mqtt  # TODO pick up from config?
+    def print_usb_devices():
+        log.debug("Listing usb devices...")
+        for path in evdev.list_devices():
+            tmp_dev = evdev.InputDevice(path)
+            log.info('device path %r %r %r %r %r ' % (path, tmp_dev.info, tmp_dev.path, tmp_dev.name, tmp_dev.phys))
 
-    # list all devices
-    for path in evdev.list_devices():
-        #log.info('device path %r' % path)
-        tmp_dev = evdev.InputDevice(path)
-        log.info('device path %r %r %r %r %r ' % (path, tmp_dev.info, tmp_dev.path, tmp_dev.name, tmp_dev.phys))
+    def read_hid_stream(dev):
+            try:
+                dev.grab()
+                while True:
+                    read_string = keyboard_reader_evdev(dev)
+                    callback_mqtt(read_string)
+            except KeyboardInterrupt:
+                logging.debug('Keyboard interrupt')
+            except Exception as err:
+                logging.error(err)
+            finally:
+                try_ungrab(dev)
 
-    dev = find_usb_device()  # TODO pick up device id from config file
-    log.info('Found device path %r' % dev)
+    def try_ungrab(dev):
+            try:
+                dev.ungrab()
+            except Exception as err:
+                logging.warn(err)
+            finally:
+                dev.ungrab()
 
-    dev.grab()
-
-    try:
+    def connect_and_read_hid_device() :
         while True:
-            read_string = keyboard_reader_evdev(dev)
-            callback_function(read_string)
-    except KeyboardInterrupt:
-        logging.debug('Keyboard interrupt')
-    except Exception as err:
-        logging.error(err)
-    finally:
-        dev.ungrab()
+            try:
+                dev = find_usb_device()
+                if dev == None:
+                    log.info('No device found. Retry in %r s' % USB_DETECTION_DELAY_SECONDS)
+                    sleep(USB_DETECTION_DELAY_SECONDS)
+                    continue
 
+                log.info('Found device path %r' % dev)
+                read_hid_stream(dev)
+            except Exception as err:
+                logging.warn(err)
 
-    return 0
-
+    print_usb_devices()
+    connect_and_read_hid_device()
 
 if __name__ == "__main__":
     sys.exit(main())
