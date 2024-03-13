@@ -5,7 +5,7 @@ import evdev
 from time import sleep
 from configuration import config
 
-class Hid2Mqtt:
+class HidBarcodeReader:
 
     def __init__(self):
         self.log = None
