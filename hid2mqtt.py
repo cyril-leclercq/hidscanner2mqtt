@@ -38,6 +38,8 @@ def connect_and_read_hid_device() :
 
             log.info('Found device path %r' % dev)
             read_hid_stream(dev)
+        except KeyboardInterrupt:
+            logging.debug('Current device search interrupted')
         except Exception as err:
             logging.warning(repr(err))
 
@@ -56,7 +58,7 @@ def read_hid_stream(dev):
                 read_string = keyboard_reader_evdev(dev)
                 callback_mqtt(read_string)
         except KeyboardInterrupt:
-            logging.debug('Keyboard interrupt')
+            logging.debug('Current device read interrupted')
         except Exception as err:
             logging.warning(repr(err))
         finally:
