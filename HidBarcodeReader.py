@@ -29,7 +29,7 @@ class HidBarcodeReader:
             try:
                 self.current_device = self.find_usb_device()
                 if self.current_device == None:
-                    self.log.info('No device found. Retry in %r s' % constants.USB_DETECTION_DELAY_SECONDS)
+                    self.log.debug('No device found. Retry in %r s' % constants.USB_DETECTION_DELAY_SECONDS)
                     sleep(constants.USB_DETECTION_DELAY_SECONDS)
                     continue
 
